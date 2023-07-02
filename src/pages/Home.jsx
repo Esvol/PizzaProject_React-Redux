@@ -11,7 +11,7 @@ import { SearchContext } from '../App';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategoryId, setFilters } from '../redux/slices/filterSlice';
-import axios from 'axios';
+import { fetchPizzas } from '../redux/slices/pizzaSlice';
 
 import qs from 'qs'
 import { useNavigate } from 'react-router-dom';
@@ -25,27 +25,26 @@ const Home = () => {
 
     const { searchValue } = useContext(SearchContext)
 
-    const [items, setItems] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const { items, status } = useSelector(state => state.pizza)
     const categoryId = useSelector((state) => state.filter.categoryId)
     const sortType = useSelector((state) => state.filter.sort)
     const currentPage = useSelector(state => state.filter.currentPage)
     const dispatch = useDispatch();
 
-    const fetchPizzas = () => {
-        setIsLoading(false)
+    const getPizzas = async () => {
 
         const category = categoryId > 0 ? `category=${categoryId}` : ''
         const search = searchValue ? `&search=${searchValue}` : ''
         const sortBy = sortType.sortProperty.replace('-', '')
         const order = sortType.sortProperty.includes('-') ? 'asc' : 'desc';
 
-        axios.get(`https://649040a11e6aa71680cae5fe.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`)
-            .then((res) => {
-                setItems(res.data);
-                setIsLoading(true);
-            });
+        dispatch(fetchPizzas({
+            category,
+            search,
+            sortBy,
+            order,
+            currentPage
+        }))
     }
 
     useEffect(() => {
@@ -65,7 +64,7 @@ const Home = () => {
 
     useEffect(() => {
         if (!isSearch.current) {
-            fetchPizzas();
+            getPizzas();
         }
 
         isSearch.current = false;
@@ -96,9 +95,18 @@ const Home = () => {
                 <Sort />
             </div>
             <h2 className="content__title">Все пиццы</h2>
-            <div className="content__items">
-                {isLoading ? pizzas : skeletons}
-            </div>
+            {
+                status === 'error' 
+                ? (<div className='content__error-info'>
+                    <h2>Произошла ошибка!</h2>
+                    <p>К сожалению не удалось получить пиццы.</p>
+                </div>) 
+                : (
+                    <div className="content__items">
+                        {status === 'loading' ? skeletons : pizzas}
+                    </div>
+                )
+            }
             <Pagination />
         </div>
     )

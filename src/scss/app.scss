@@ -25,6 +25,15 @@ body {
     font-size: 35px;
   }
 
+  &__error-info{
+    margin: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+  }
+
   &__items {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
