@@ -14,7 +14,7 @@ export const sortList = [
 
 function Sort() {
 
-  const sort = useSelector(state => state.filter.sort)
+  const sortType = useSelector(state => state.filter.sortType)
   const dispatch = useDispatch()
   const sortRef = useRef();
 
@@ -55,14 +55,14 @@ function Sort() {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setOpen(!open)}>{sort.name}</span>
+        <span onClick={() => setOpen(!open)}>{sortType.name}</span>
       </div>
       {
         open && (
           <div className="sort__popup">
             <ul>
               {
-                sortList.map((obj, index) => <li key={index} onClick={() => onClickListItem(obj)} className={sort.sortProperty === obj.sortProperty ? "active" : ''}>{obj.name}</li>)
+                sortList.map((obj, index) => <li key={index} onClick={() => onClickListItem(obj)} className={sortType.sortProperty === obj.sortProperty ? "active" : ''}>{obj.name}</li>)
               }
 
             </ul>

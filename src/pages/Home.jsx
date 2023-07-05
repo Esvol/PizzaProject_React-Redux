@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react'
+import React, { useRef } from 'react'
 
 import Categories from "../components/Categories";
 import Sort from "../components/Sort";
@@ -7,14 +7,13 @@ import PizzaBlock from "../components/PizzaBlock";
 import { useEffect, useState } from "react";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from '../components/Pagination';
-import { SearchContext } from '../App';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategoryId, setFilters } from '../redux/slices/filterSlice';
 import { fetchPizzas } from '../redux/slices/pizzaSlice';
 
 import qs from 'qs'
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { sortList } from '../components/Sort';
 
 const Home = () => {
@@ -23,16 +22,11 @@ const Home = () => {
     const isSearch = useRef(false)
     const isMounted = useRef(false)
 
-    const { searchValue } = useContext(SearchContext)
-
     const { items, status } = useSelector(state => state.pizza)
-    const categoryId = useSelector((state) => state.filter.categoryId)
-    const sortType = useSelector((state) => state.filter.sort)
-    const currentPage = useSelector(state => state.filter.currentPage)
+    const { searchValue, categoryId, currentPage, sortType } = useSelector(state => state.filter)
     const dispatch = useDispatch();
 
     const getPizzas = async () => {
-
         const category = categoryId > 0 ? `category=${categoryId}` : ''
         const search = searchValue ? `&search=${searchValue}` : ''
         const sortBy = sortType.sortProperty.replace('-', '')
@@ -85,7 +79,12 @@ const Home = () => {
         isMounted.current = true;
     }, [categoryId, sortType.sortProperty, currentPage])
 
-    const pizzas = items.map((obj) => <PizzaBlock key={obj.title} {...obj} />)
+    const pizzas = items.map((obj) =>
+        <Link to={`/pizza/` + obj.id} key={obj.title}>
+            <PizzaBlock {...obj} />
+        </Link>
+        )
+
     const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />)
 
     return (
@@ -96,16 +95,16 @@ const Home = () => {
             </div>
             <h2 className="content__title">Все пиццы</h2>
             {
-                status === 'error' 
-                ? (<div className='content__error-info'>
-                    <h2>Произошла ошибка!</h2>
-                    <p>К сожалению не удалось получить пиццы.</p>
-                </div>) 
-                : (
-                    <div className="content__items">
-                        {status === 'loading' ? skeletons : pizzas}
-                    </div>
-                )
+                status === 'error'
+                    ? (<div className='content__error-info'>
+                        <h2>Произошла ошибка!</h2>
+                        <p>К сожалению не удалось получить пиццы.</p>
+                    </div>)
+                    : (
+                        <div className="content__items">
+                            {status === 'loading' ? skeletons : pizzas}
+                        </div>
+                    )
             }
             <Pagination />
         </div>
