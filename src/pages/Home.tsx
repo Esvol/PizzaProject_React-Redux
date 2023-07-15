@@ -4,7 +4,7 @@ import Categories from "../components/Categories";
 import Sort from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from '../components/Pagination';
 
@@ -16,14 +16,14 @@ import qs from 'qs'
 import { Link, useNavigate } from 'react-router-dom';
 import { sortList } from '../components/Sort';
 
-const Home = () => {
+const Home: React.FC = () => {
 
     const navigate = useNavigate()
     const isSearch = useRef(false)
     const isMounted = useRef(false)
 
-    const { items, status } = useSelector(state => state.pizza)
-    const { searchValue, categoryId, currentPage, sortType } = useSelector(state => state.filter)
+    const { items, status } = useSelector((state: any) => state.pizza)
+    const { searchValue, categoryId, currentPage, sortType } = useSelector((state: any) => state.filter)
     const dispatch = useDispatch();
 
     const getPizzas = async () => {
@@ -32,7 +32,9 @@ const Home = () => {
         const sortBy = sortType.sortProperty.replace('-', '')
         const order = sortType.sortProperty.includes('-') ? 'asc' : 'desc';
 
-        dispatch(fetchPizzas({
+        dispatch(
+            // @ts-ignore
+            fetchPizzas({
             category,
             search,
             sortBy,
@@ -79,7 +81,7 @@ const Home = () => {
         isMounted.current = true;
     }, [categoryId, sortType.sortProperty, currentPage])
 
-    const pizzas = items.map((obj) =>
+    const pizzas= items.map((obj:any) =>
         <Link to={`/pizza/` + obj.id} key={obj.title}>
             <PizzaBlock {...obj} />
         </Link>
@@ -90,7 +92,7 @@ const Home = () => {
     return (
         <div className="container">
             <div className="content__top">
-                <Categories value={categoryId} onChangeCategory={(i) => dispatch(setCategoryId(i))} />
+                <Categories value={categoryId} onChangeCategory={(i : number) => dispatch(setCategoryId(i))} />
                 <Sort />
             </div>
             <h2 className="content__title">Все пиццы</h2>
@@ -102,7 +104,7 @@ const Home = () => {
                     </div>)
                     : (
                         <div className="content__items">
-                            {status === 'loading' ? skeletons : pizzas}
+                            { status === 'loading' ? skeletons : pizzas}
                         </div>
                     )
             }
